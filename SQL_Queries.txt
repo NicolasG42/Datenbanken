@@ -1,0 +1,62 @@
+
+1.
+SELECT COUNT(*)
+FROM Exhibitions
+WHERE endDate IS NULL;
+
+2.
+SELECT exhibitionTitle, SUM(cost) AS total_cost
+FROM Advertisements
+WHERE mediumName = 'Newspaper'
+GROUP BY exhibitionTitle;
+
+3.
+SELECT id
+FROM Artifacts
+WHERE id NOT IN (
+    SELECT artifactId
+    FROM ExhibitedAt
+);
+
+4.
+UPDATE ArtifactSculptures
+SET value = value * 1.1
+WHERE color IN ('white', 'green');
+
+5.
+SELECT 
+    (COUNT(DISTINCT p.id) * 100.0) / (SELECT COUNT(*) FROM ArtifactPaintings) AS percentage_in_exhibition
+FROM ArtifactPaintings p
+JOIN ExhibitedAt e ON p.id = e.artifactId;
+
+6.
+SELECT influencerId AS artist_id, COUNT(influenceeId) AS influence_count
+FROM InfluencedBy
+GROUP BY influencerId
+HAVING COUNT(influenceeId) <= 2
+UNION
+SELECT id AS artist_id, 0 AS influence_count
+FROM Artists
+WHERE id NOT IN (SELECT influencerId FROM InfluencedBy);
+
+7.
+UPDATE Exhibitions
+SET room = '03-500'
+WHERE startDate > CURRENT_DATE AND 'Vincent Van Gogh' IN (
+    SELECT name
+    FROM Artists
+    JOIN Artifacts ON Artists.id = Artifacts.artistId
+    JOIN ArtifactPaintings ON Artifacts.id = ArtifactPaintings.id
+    JOIN ExhibitedAt ON ArtifactPaintings.id = ExhibitedAt.artifactId
+    WHERE Exhibitions.title = ExhibitedAt.exhibitionTitle
+);
+
+8.
+SELECT artifactId
+FROM ExhibitedAt
+JOIN Exhibitions ON ExhibitedAt.exhibitionTitle = Exhibitions.title
+WHERE YEAR(startDate) = 2018
+AND artifactId IN (
+    SELECT id
+    FROM ArtifactSculptures
+);
